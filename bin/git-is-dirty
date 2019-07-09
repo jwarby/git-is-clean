@@ -1,0 +1,6 @@
+#! /usr/bin/env node
+(async () => {
+  await require('./git-is-clean')
+
+  process.exitCode = +!process.exitCode
+})()

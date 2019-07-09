@@ -1,0 +1,9 @@
+- Please add or amend tests where appropriate
+- Please format code using `prettier`:
+  - `npm run prettier -- --write`
+- Ensure code lints:
+  - `npm run lint`
+- Ensure the tests are passing:
+  - `npm test`
+- Ensure the test coverage meets the thresholds:
+  - `npm run check-coverage`

@@ -1,0 +1,135 @@
+#! /usr/bin/env node
+const chalk = require('chalk')
+const yargs = require('yargs')
+const camelCase = require('lodash.camelcase')
+const pick = require('lodash.pick')
+
+const isClean = require('../lib')
+
+const MODE = process.argv[1].match(/\w+$/)[0]
+const GROUP_IGNORE_OPTIONS = 'Ignore options:'
+const GROUP_ONLY_OPTIONS = 'Only options:'
+const OPTIONS = {
+  dir: {
+    alias: 'd',
+    type: 'string',
+    default: process.cwd,
+    defaultDescription: 'process.cwd()',
+    describe: 'Path to Git repository',
+    coerce: value => value === '$PWD' ? undefined : value
+  },
+  'ignore-untracked': {
+    type: 'boolean',
+    description: `Ignore untracked files when deciding if ${MODE}`,
+    group: GROUP_IGNORE_OPTIONS
+  },
+  'ignore-staged': {
+    type: 'boolean',
+    description: `Ignore staged (added) files when deciding if ${MODE}`,
+    group: GROUP_IGNORE_OPTIONS
+  },
+  'ignore-unstaged': {
+    type: 'boolean',
+    description:
+      `Ignore tracked files which have changes when deciding if ${MODE}`,
+    group: GROUP_IGNORE_OPTIONS
+  },
+  'only-untracked': {
+    type: 'boolean',
+    description:
+      'Only check untracked files.  Equivalent to --ignore-unstaged and --ignore-staged'
+  }
+}
+
+const addOnlyOptions = (baseOptions, config) => {
+  const options = { ...baseOptions }
+
+  for (const key in config) {
+    const implies = config[key].implies.map(k => `--${k}`).join(' and ')
+
+    options[key] = {
+      type: 'boolean',
+      description: config[key].description + ` Equivalent to setting ${implies}.`,
+      group: GROUP_ONLY_OPTIONS
+    }
+  }
+
+  const conflictingOptions = Object.keys(options).filter(key => (
+    key.startsWith('only-') || key.startsWith('ignore-')
+  ))
+
+  for (const key in options) {
+    if (!(key.startsWith('only-'))) continue
+
+    options[key].conflicts = conflictingOptions.filter(k => k !== key)
+  }
+
+  return options
+}
+
+const FULL_OPTIONS = addOnlyOptions(OPTIONS, {
+  'only-untracked': {
+    description: 'Only check untracked files.',
+    implies: ['ignore-unstaged', 'ignore-staged']
+  },
+  'only-unstaged': {
+    description: 'Only check unstaged files.',
+    implies: ['ignore-untracked', 'ignore-staged']
+  },
+  'only-staged': {
+    description: 'Only check staged files.',
+    implies: ['ignore-untracked', 'ignore-unstaged']
+  }
+})
+
+const handleError = err => {
+  console.error(chalk.red(err.stack))
+  process.exit(2)
+}
+
+process.on('uncaughtException', handleError)
+process.on('unhandledRejection', handleError)
+
+const args = yargs
+  .usage(
+    '$0 [...args]',
+    `Check if the Git index and working tree are ${MODE}.
+
+Exit status is 0 when index/working tree are ${MODE}, 1 if otherwise` +
+    ', or 2 if an error occurs.',
+    builder => builder
+      .options(FULL_OPTIONS)
+      .alias('h', 'help')
+      .alias('V', 'version')
+      .help()
+      .example(
+        '$0 --ignore-untracked',
+        `Ignore untracked files when checking if ${MODE}`
+      )
+      .example(
+        '$0 --only-staged',
+        `Only check that staged area is ${MODE}, ignoring unstaged & untracked files`
+      )
+      .example(
+        '$0 --dir /tmp/my-repo',
+        'Check the Git repo at /tmp/my-repo instead of $PWD'
+      )
+      .fail((message, error, yargs) => {
+        if (error) throw error
+
+        yargs.showHelp()
+        console.error('')
+        console.error(chalk.red(message))
+
+        process.exit(2)
+      })
+  )
+  .argv
+
+const run = async () => {
+  const clean = await isClean(pick(args, Object.keys(OPTIONS).map(camelCase)))
+
+  process.exitCode = +!clean
+}
+
+module.exports = run()

@@ -1,0 +1,34 @@
+.node:
+  image: node:10
+  before_script:
+    - npm install
+  tags:
+    - gitlab-org
+
+cache:
+  key: untracked
+  paths:
+  - node_modules/
+
+stages:
+  - lint
+  - test
+  - coverage
+
+lint:
+  extends: .node
+  stage: lint
+  script:
+    - npm run lint
+
+test:
+  extends: .node
+  stage: test
+  script:
+    - npm test
+
+coverage:
+  extends: .node
+  stage: coverage
+  script:
+    - npm run coverage

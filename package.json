@@ -1,0 +1,63 @@
+{
+  "name": "git-is-clean",
+  "version": "1.0.0",
+  "description": "Check if the Git index and working tree are clean",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/warby/git-is-clean"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/warby/git-is-clean/issues"
+  },
+  "homepage": "https://gitlab.com/warby/git-is-clean#git-is-clean",
+  "bin": {
+    "git-is-clean": "bin/git-is-clean",
+    "git-is-dirty": "bin/git-is-dirty"
+  },
+  "keywords": [
+    "git",
+    "clean",
+    "dirty",
+    "working tree",
+    "git index",
+    "changes"
+  ],
+  "files": [
+    "bin/**",
+    "lib/**"
+  ],
+  "scripts": {
+    "check-coverage": "npm run coverage && nyc check-coverage --per-file --statements 100",
+    "coverage": "nyc --reporter html --reporter text npm t",
+    "lint": "eslint lib test",
+    "prepare": "npm outdated && npm audit",
+    "prettier": "prettier \"lib/**/*.js\" \"test/**/*.js\"",
+    "release": "standard-version",
+    "test": "mocha"
+  },
+  "author": "James Warwood <warwood.aj@gmail.com>",
+  "license": "ISC",
+  "engines": {
+    "node": ">= 8.6"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "debug": "^4.1.1",
+    "g-status": "^2.0.2",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.pick": "^4.4.0",
+    "yargs": "^13.2.4"
+  },
+  "devDependencies": {
+    "eslint": "^6.0.1",
+    "expect": "^24.8.0",
+    "husky": "^3.0.0",
+    "mocha": "^6.1.4",
+    "mockery": "^2.1.0",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
+    "shx": "^0.3.2",
+    "standard-version": "^6.0.1"
+  }
+}
