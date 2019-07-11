@@ -1,10 +1,13 @@
 #! /usr/bin/env node
+const { spawnSync } = require('child_process')
+
 const chalk = require('chalk')
 const yargs = require('yargs')
 const camelCase = require('lodash.camelcase')
 const pick = require('lodash.pick')
 
-const isClean = require('../lib')
+const { getFiles } = require('../lib')
+const statuses = require('../lib/statuses')
 
 const MODE = process.argv[1].match(/\w+$/)[0]
 const GROUP_IGNORE_OPTIONS = 'Ignore options:'
@@ -17,6 +20,12 @@ const OPTIONS = {
     defaultDescription: 'process.cwd()',
     describe: 'Path to Git repository',
     coerce: value => value === '$PWD' ? undefined : value
+  },
+  quiet: {
+    alias: ['q', 'silent'],
+    type: 'boolean',
+    default: false,
+    describe: 'Do not print list of offending files on command failure'
   },
   'ignore-untracked': {
     type: 'boolean',
@@ -127,9 +136,19 @@ Exit status is 0 when index/working tree are ${MODE}, 1 if otherwise` +
   .argv
 
 const run = async () => {
-  const clean = await isClean(pick(args, Object.keys(OPTIONS).map(camelCase)))
+  const files = await getFiles(pick(args, Object.keys(OPTIONS).map(camelCase)))
 
-  process.exitCode = +!clean
+  process.exitCode = +!(files.length === 0)
+
+  files.forEach(file => {
+    const index = file.index !== statuses.STATUS_UNTRACKED
+      ? chalk.green(file.index || ' ')
+      : chalk.red(file.index || ' ')
+
+    const workingTree = chalk.red(file.workingTree || ' ')
+
+    console.log('%s%s %s', index, workingTree, file.path)
+  })
 }
 
 module.exports = run()
