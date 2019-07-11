@@ -22,6 +22,31 @@ Without any arguments, `git-is-clean` will exit with status 0 if there are no
 changes to either the Git index or the working tree, or status 1 if there are
 (if any errors occur, the program will exit with status 2).
 
+From [`v2.0.0`][v2]+, if the exit status is 1 a list of the files which caused the
+check to fail will be printed (a la `git status --short`).  To prevent this
+use the `--quiet` or `-q` (or the alias option `--silent`).
+
+
+```bash
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   index.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ git-is-clean
+ M index.js
+$ echo $?
+1
+$ git checkout .
+$ git-is-clean
+$ echo $?
+0
+```
+
 #### Ignoring certain file statuses
 
 The behaviour can be customised to ignore one or more of staged, unstaged or
@@ -172,3 +197,4 @@ See the documentation for the [`debug` package][debug] for further debugging opt
 [git-status-short-format]: https://git-scm.com/docs/git-status#_short_format
 [g-status]: https://www.npmjs.com/package/g-status
 [debug]: https://www.npmjs.com/package/debug
+[v2]: https://gitlab.com/warby/git-is-clean/blob/master/CHANGELOG.md#200-2019-07-11
