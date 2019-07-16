@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://gitlab.com/warby/git-is-clean/compare/v3.0.0...v3.0.1) (2019-07-16)
+
+
+### Bug Fixes
+
+* Wrong property name being used when calling isSubmodule function ([9892109](https://gitlab.com/warby/git-is-clean/commit/9892109))
+
+
+
 ## [3.0.0](https://gitlab.com/warby/git-is-clean/compare/v2.0.0...v3.0.0) (2019-07-16)
 
 
