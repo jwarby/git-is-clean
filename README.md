@@ -87,6 +87,30 @@ By default, Git commands will execute in the current working directory.  Use the
 git-is-clean --dir /tmp/my-repo
 ```
 
+#### Including Git submodules
+
+Submodules are ignored by default.  To turn on submodule checking, pass the
+`--include-submodules` flag:
+
+```bash
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+  (commit or discard the untracked or modified content in submodules)
+
+	modified:   path/to/submodule (modified content, untracked content)
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ git-is-clean; echo $?
+0
+$ git-is-clean --include-submodules; echo $?
+ m path/to/submodule
+1
+```
+
 #### Checking if Git is dirty instead of clean
 
 For convenience, this package also ships a `git-is-dirty` binary which is
@@ -158,7 +182,8 @@ When populated, each entry in the resolved array will have the following shape:
 {
   path: 'path/to/file',
   index: '<git status short format>',
-  workingTree: '<git status short format>'
+  workingTree: '<git status short format>',
+  isSubmodule: <boolean>
 }
 ```
 
@@ -168,12 +193,16 @@ For example, a tracked file with unstaged modifications would look like this:
 {
   path: 'myfile.js',
   index: '',
-  workingTree: 'M'
+  workingTree: 'M',
+  isSubmodule: false
 }
 ```
 
 For a list of the short code statuses, see
 [`git-status` short format][git-status-short-format].
+
+When a submodule has been modified and is included in the output (`includeSubmodules: true` option),
+the modified status is a lowercase `m`, as per `git status --short`.
 
 Again, options are the same as the CLI options except they are camel-cased
 instead of kebab-cased.

@@ -11,7 +11,11 @@ module.exports = {
       // ESLint
       'npm run lint',
       // Tests & coverage check
-      'npm run check-coverage'
+      'npm run check-coverage',
+      // Check for security vulnerabilities in dependencies
+      'npm audit',
+      // Check for outdated modules
+      'npm outdated'
     ].join(' && ')
   }
 }

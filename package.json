@@ -1,6 +1,6 @@
 {
   "name": "git-is-clean",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Check if the Git index and working tree are clean",
   "main": "lib/index.js",
   "repository": {
@@ -47,7 +47,7 @@
     "g-status": "^2.0.2",
     "lodash.camelcase": "^4.3.0",
     "lodash.pick": "^4.4.0",
-    "yargs": "^13.2.4"
+    "yargs": "^13.3.0"
   },
   "devDependencies": {
     "eslint": "^6.0.1",
