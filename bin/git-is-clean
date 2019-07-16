@@ -47,6 +47,11 @@ const OPTIONS = {
     type: 'boolean',
     description:
       'Only check untracked files.  Equivalent to --ignore-unstaged and --ignore-staged'
+  },
+  'include-submodules': {
+    type: 'boolean',
+    description: 'Also check the status of any of the project\'s submodules',
+    default: false
   }
 }
 
