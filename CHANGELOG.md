@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://gitlab.com/warby/git-is-clean/compare/v2.0.0...v3.0.0) (2019-07-16)
+
+
+### Bug Fixes
+
+* **dependencies:** Run 'npm audit fix' to upgrade version of lodash used by dependencies ([8282a1a](https://gitlab.com/warby/git-is-clean/commit/8282a1a))
+
+
+### Features
+
+* Ignore submodules by default, add option to include them ([d2d3ea8](https://gitlab.com/warby/git-is-clean/commit/d2d3ea8))
+
+
+### BREAKING CHANGES
+
+* submodules are now ignored by default; to restore the old
+behaviour, use the --include-submodules flag or includeSubmodules: true API
+option.
+
+
+
 ## [2.0.0](https://gitlab.com/warby/git-is-clean/compare/v1.0.0...v2.0.0) (2019-07-11)
 
 
