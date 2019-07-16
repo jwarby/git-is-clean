@@ -18,12 +18,28 @@ const MOCK_FILES = {
     file: '/path/to/untracked',
     index: '?',
     workingTree: '?'
+  },
+  submodule_modified: {
+    file: '/path/to/submodule',
+    index: ' ',
+    workingTree: 'M'
+  },
+  submodule_untracked: {
+    file: '/path/to/submodule',
+    index: ' ',
+    workingTree: '?'
+  },
+  submodule_clean: {
+    file: '/path/to/submodule',
+    index: ' ',
+    workingTree: '?'
   }
 }
 
 mockery.enable({
   warnOnReplace: false,
-  warnOnUnregistered: false
+  warnOnUnregistered: false,
+  useCleanCache: true
 })
 
 const setup = statuses => {
@@ -31,18 +47,32 @@ const setup = statuses => {
 
   mockery.registerMock('g-status', mock)
 
-  delete require.cache[require.resolve(MODULE)]
-
   return require(MODULE)
 }
 
-const trimValues = file => ({
+const mockFs = isSubmodule => {
+  mockery.deregisterMock('fs')
+  mockery.registerMock('fs', {
+    accessSync: () => {
+      if (!isSubmodule) throw new Error('not accessible')
+    }
+  })
+
+  return () => mockery.deregisterMock('fs')
+}
+
+const postprocess = file => ({
   ...file,
   index: file.index.trim(),
-  workingTree: file.workingTree.trim()
+  workingTree: file.workingTree.trim(),
+  isSubmodule: false
 })
 
 describe('git-is-clean', () => {
+  beforeEach(() => {
+    mockery.resetCache()
+  })
+
   describe('#getFiles()', () => {
     describe('with no filtering options', () => {
       it('should return the list of files from g-status', async () => {
@@ -53,7 +83,7 @@ describe('git-is-clean', () => {
         ]
         const { getFiles } = setup(files)
 
-        expect(await getFiles()).toEqual(files.map(trimValues))
+        expect(await getFiles()).toEqual(files.map(postprocess))
       })
     })
 
@@ -70,7 +100,7 @@ describe('git-is-clean', () => {
           await getFiles({
             ignoreUntracked: true
           })
-        ).toEqual([MOCK_FILES.staged, MOCK_FILES.unstaged].map(trimValues))
+        ).toEqual([MOCK_FILES.staged, MOCK_FILES.unstaged].map(postprocess))
       })
 
       it('should exclude unstaged files when ignoreUnstaged: true', async () => {
@@ -85,7 +115,7 @@ describe('git-is-clean', () => {
           await getFiles({
             ignoreUnstaged: true
           })
-        ).toEqual([MOCK_FILES.staged, MOCK_FILES.untracked].map(trimValues))
+        ).toEqual([MOCK_FILES.staged, MOCK_FILES.untracked].map(postprocess))
       })
 
       it('should exclude staged files when ignoreStaged: true', async () => {
@@ -100,7 +130,7 @@ describe('git-is-clean', () => {
           await getFiles({
             ignoreStaged: true
           })
-        ).toEqual([MOCK_FILES.unstaged, MOCK_FILES.untracked].map(trimValues))
+        ).toEqual([MOCK_FILES.unstaged, MOCK_FILES.untracked].map(postprocess))
       })
 
       describe('multiple "ignore" filters', () => {
@@ -117,7 +147,7 @@ describe('git-is-clean', () => {
               ignoreUnstaged: true,
               ignoreUntracked: true
             })
-          ).toEqual([MOCK_FILES.staged].map(trimValues))
+          ).toEqual([MOCK_FILES.staged].map(postprocess))
         })
 
         it('should exclude staged and unstaged changes when relevant options set', async () => {
@@ -133,7 +163,7 @@ describe('git-is-clean', () => {
               ignoreUnstaged: true,
               ignoreStaged: true
             })
-          ).toEqual([MOCK_FILES.untracked].map(trimValues))
+          ).toEqual([MOCK_FILES.untracked].map(postprocess))
         })
 
         it('should exclude partially staged files when ignoreStaged: true', async () => {
@@ -168,7 +198,7 @@ describe('git-is-clean', () => {
           await getFiles({
             onlyUntracked: true
           })
-        ).toEqual([MOCK_FILES.untracked].map(trimValues))
+        ).toEqual([MOCK_FILES.untracked].map(postprocess))
       })
 
       it('should only return staged files when onlyStaged: true', async () => {
@@ -183,7 +213,7 @@ describe('git-is-clean', () => {
           await getFiles({
             onlyStaged: true
           })
-        ).toEqual([MOCK_FILES.staged].map(trimValues))
+        ).toEqual([MOCK_FILES.staged].map(postprocess))
       })
 
       it('should only return unstaged files when onlyUnstaged: true', async () => {
@@ -198,7 +228,36 @@ describe('git-is-clean', () => {
           await getFiles({
             onlyUnstaged: true
           })
-        ).toEqual([MOCK_FILES.unstaged].map(trimValues))
+        ).toEqual([MOCK_FILES.unstaged].map(postprocess))
+      })
+    })
+
+    describe('with submodules', () => {
+      it('should set isSubmodule to true and lower-case status for submodules', async () => {
+        const unmockFs = mockFs(true)
+        const { getFiles } = setup([MOCK_FILES.submodule_modified])
+
+        const files = await getFiles({ includeSubmodules: true })
+
+        expect(files).toEqual([
+          {
+            ...MOCK_FILES.submodule_modified,
+            isSubmodule: true,
+            index: '',
+            workingTree: 'm'
+          }
+        ])
+
+        unmockFs()
+      })
+
+      it('should filter out submodules by default', async () => {
+        const unmockFs = mockFs(true)
+        const { getFiles } = setup([MOCK_FILES.submodule_modified])
+
+        expect(await getFiles()).toHaveLength(0)
+
+        unmockFs()
       })
     })
   })
@@ -232,6 +291,24 @@ describe('git-is-clean', () => {
       const isClean = setup([MOCK_FILES.unstaged])
 
       expect(await isClean({ ignoreUntracked: true })).toBe(false)
+    })
+
+    describe('with submodules', () => {
+      it('should return true if submodule has changes but includeSubmodules not set', async () => {
+        const unmockFs = mockFs(true)
+        const isClean = setup([MOCK_FILES.submodule_untracked])
+
+        expect(await isClean()).toBe(true)
+        unmockFs()
+      })
+
+      it('should return false if submodule has changes and includeSubmodules set', async () => {
+        const unmockFs = mockFs(true)
+        const isClean = setup([MOCK_FILES.submodule_untracked])
+
+        expect(await isClean({ includeSubmodules: true })).toBe(false)
+        unmockFs()
+      })
     })
   })
 })
