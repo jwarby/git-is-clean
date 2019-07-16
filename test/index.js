@@ -5,32 +5,32 @@ const mockery = require('mockery')
 const MODULE = '../'
 const MOCK_FILES = {
   staged: {
-    file: '/path/to/staged',
+    path: '/path/to/staged',
     index: 'M',
     workingTree: ' '
   },
   unstaged: {
-    file: '/path/to/unstaged',
+    path: '/path/to/unstaged',
     index: ' ',
     workingTree: 'M'
   },
   untracked: {
-    file: '/path/to/untracked',
+    path: '/path/to/untracked',
     index: '?',
     workingTree: '?'
   },
   submodule_modified: {
-    file: '/path/to/submodule',
+    path: '/path/to/submodule',
     index: ' ',
     workingTree: 'M'
   },
   submodule_untracked: {
-    file: '/path/to/submodule',
+    path: '/path/to/submodule',
     index: ' ',
     workingTree: '?'
   },
   submodule_clean: {
-    file: '/path/to/submodule',
+    path: '/path/to/submodule',
     index: ' ',
     workingTree: '?'
   }
