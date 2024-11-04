@@ -5,12 +5,12 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/warby/git-is-clean"
+    "url": "https://github.com/jwarby/git-is-clean"
   },
   "bugs": {
-    "url": "https://gitlab.com/warby/git-is-clean/issues"
+    "url": "https://github.com/jwarby/git-is-clean/issues"
   },
-  "homepage": "https://gitlab.com/warby/git-is-clean#git-is-clean",
+  "homepage": "https://github.com/jwarby/git-is-clean#git-is-clean",
   "bin": {
     "git-is-clean": "bin/git-is-clean",
     "git-is-dirty": "bin/git-is-dirty"

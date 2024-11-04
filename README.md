@@ -1,6 +1,5 @@
 # `git-is-clean`
 > Check if a Git repository's index or working tree contains changes
-> >  [![pipeline status](https://gitlab.com/warby/git-is-clean/badges/master/pipeline.svg)](https://gitlab.com/warby/git-is-clean/commits/master)  [![coverage report](https://gitlab.com/warby/git-is-clean/badges/master/coverage.svg)](https://gitlab.com/warby/git-is-clean/commits/master)
 
 ## Installation
 
