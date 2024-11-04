@@ -216,13 +216,7 @@ DEBUG=git-is-clean git-is-clean
 
 See the documentation for the [`debug` package][debug] for further debugging options.
 
-## See also
-
-- [`g-status`][g-status]: Underlying package used to get the list of
-  staged/unstaged/untracked files.
-
 [npx]: https://blog.scottlogic.com/2018/04/05/npx-the-npm-package-runner.html
 [git-status-short-format]: https://git-scm.com/docs/git-status#_short_format
-[g-status]: https://www.npmjs.com/package/g-status
 [debug]: https://www.npmjs.com/package/debug
 [v2]: https://gitlab.com/warby/git-is-clean/blob/master/CHANGELOG.md#200-2019-07-11

@@ -44,8 +44,8 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "debug": "^4.1.1",
-    "g-status": "^2.0.2",
     "lodash": "^4.17.21",
+    "simple-git": "^3.27.0",
     "yargs": "^13.3.0"
   },
   "devDependencies": {
