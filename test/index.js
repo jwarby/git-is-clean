@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+const fs = require('fs')
 const expect = require('expect')
 const mockery = require('mockery')
 
@@ -7,32 +8,32 @@ const MOCK_FILES = {
   staged: {
     path: '/path/to/staged',
     index: 'M',
-    workingTree: ' '
+    working_dir: ' '
   },
   unstaged: {
     path: '/path/to/unstaged',
     index: ' ',
-    workingTree: 'M'
+    working_dir: 'M'
   },
   untracked: {
     path: '/path/to/untracked',
     index: '?',
-    workingTree: '?'
+    working_dir: '?'
   },
   submodule_modified: {
     path: '/path/to/submodule',
     index: ' ',
-    workingTree: 'M'
+    working_dir: 'M'
   },
   submodule_untracked: {
     path: '/path/to/submodule',
     index: ' ',
-    workingTree: '?'
+    working_dir: '?'
   },
   submodule_clean: {
     path: '/path/to/submodule',
     index: ' ',
-    workingTree: '?'
+    working_dir: '?'
   }
 }
 
@@ -43,9 +44,12 @@ mockery.enable({
 })
 
 const setup = statuses => {
-  const mock = () => Promise.resolve(statuses)
-
-  mockery.registerMock('g-status', mock)
+  mockery.registerMock('simple-git', () => ({
+    status: () =>
+      Promise.resolve({
+        files: statuses
+      })
+  }))
 
   return require(MODULE)
 }
@@ -53,6 +57,7 @@ const setup = statuses => {
 const mockFs = isSubmodule => {
   mockery.deregisterMock('fs')
   mockery.registerMock('fs', {
+    ...fs,
     accessSync: () => {
       if (!isSubmodule) throw new Error('not accessible')
     }
@@ -64,7 +69,7 @@ const mockFs = isSubmodule => {
 const postprocess = file => ({
   ...file,
   index: file.index.trim(),
-  workingTree: file.workingTree.trim(),
+  workingTree: file.working_dir.trim(),
   isSubmodule: false
 })
 
@@ -75,7 +80,7 @@ describe('git-is-clean', () => {
 
   describe('#getFiles()', () => {
     describe('with no filtering options', () => {
-      it('should return the list of files from g-status', async () => {
+      it('should return the list of files from simple-git status', async () => {
         const files = [
           MOCK_FILES.staged,
           MOCK_FILES.unstaged,
@@ -171,7 +176,7 @@ describe('git-is-clean', () => {
             {
               path: '/path/to/partially-staged',
               index: 'M',
-              workingTree: 'M'
+              working_dir: 'M'
             }
           ]
           const { getFiles } = setup(files)

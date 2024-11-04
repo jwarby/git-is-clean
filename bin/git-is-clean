@@ -19,7 +19,7 @@ const OPTIONS = {
     default: process.cwd,
     defaultDescription: 'process.cwd()',
     describe: 'Path to Git repository',
-    coerce: value => value === '$PWD' ? undefined : value
+    coerce: value => (value === '$PWD' ? undefined : value)
   },
   quiet: {
     alias: ['q', 'silent'],
@@ -39,8 +39,7 @@ const OPTIONS = {
   },
   'ignore-unstaged': {
     type: 'boolean',
-    description:
-      `Ignore tracked files which have changes when deciding if ${MODE}`,
+    description: `Ignore tracked files which have changes when deciding if ${MODE}`,
     group: GROUP_IGNORE_OPTIONS
   },
   'only-untracked': {
@@ -50,7 +49,7 @@ const OPTIONS = {
   },
   'include-submodules': {
     type: 'boolean',
-    description: 'Also check the status of any of the project\'s submodules',
+    description: "Also check the status of any of the project's submodules",
     default: false
   }
 }
@@ -63,17 +62,18 @@ const addOnlyOptions = (baseOptions, config) => {
 
     options[key] = {
       type: 'boolean',
-      description: config[key].description + ` Equivalent to setting ${implies}.`,
+      description:
+        config[key].description + ` Equivalent to setting ${implies}.`,
       group: GROUP_ONLY_OPTIONS
     }
   }
 
-  const conflictingOptions = Object.keys(options).filter(key => (
-    key.startsWith('only-') || key.startsWith('ignore-')
-  ))
+  const conflictingOptions = Object.keys(options).filter(
+    key => key.startsWith('only-') || key.startsWith('ignore-')
+  )
 
   for (const key in options) {
-    if (!(key.startsWith('only-'))) continue
+    if (!key.startsWith('only-')) continue
 
     options[key].conflicts = conflictingOptions.filter(k => k !== key)
   }
@@ -104,14 +104,14 @@ const handleError = err => {
 process.on('uncaughtException', handleError)
 process.on('unhandledRejection', handleError)
 
-const args = yargs
-  .usage(
-    '$0 [...args]',
-    `Check if the Git index and working tree are ${MODE}.
+const args = yargs.usage(
+  '$0 [...args]',
+  `Check if the Git index and working tree are ${MODE}.
 
 Exit status is 0 when index/working tree are ${MODE}, 1 if otherwise` +
     ', or 2 if an error occurs.',
-    builder => builder
+  builder =>
+    builder
       .options(FULL_OPTIONS)
       .alias('h', 'help')
       .alias('V', 'version')
@@ -137,23 +137,25 @@ Exit status is 0 when index/working tree are ${MODE}, 1 if otherwise` +
 
         process.exit(2)
       })
-  )
-  .argv
+).argv
 
 const run = async () => {
   const files = await getFiles(pick(args, Object.keys(OPTIONS).map(camelCase)))
 
   process.exitCode = +!(files.length === 0)
 
-  files.forEach(file => {
-    const index = file.index !== statuses.STATUS_UNTRACKED
-      ? chalk.green(file.index || ' ')
-      : chalk.red(file.index || ' ')
+  if (!args.quiet) {
+    files.forEach(file => {
+      const index =
+        file.index !== statuses.STATUS_UNTRACKED
+          ? chalk.green(file.index || ' ')
+          : chalk.red(file.index || ' ')
 
-    const workingTree = chalk.red(file.workingTree || ' ')
+      const workingTree = chalk.red(file.workingTree || ' ')
 
-    console.log('%s%s %s', index, workingTree, file.path)
-  })
+      console.log('%s%s %s', index, workingTree, file.path)
+    })
+  }
 }
 
 module.exports = run()
