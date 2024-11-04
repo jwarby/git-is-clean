@@ -1,6 +1,6 @@
 {
   "name": "git-is-clean",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Check if the Git index and working tree are clean",
   "main": "lib/index.js",
   "repository": {
