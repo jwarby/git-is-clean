@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.4](https://github.com/jwarby/git-is-clean/compare/v3.0.3...v3.0.4) (2024-11-04)
+
+
+### Bug Fixes
+
+* Fix quiet CLI option not working ([43bf62e](https://github.com/jwarby/git-is-clean/commit/43bf62e))
+
+
+
 ### [3.0.3](https://github.com/jwarby/git-is-clean/compare/v3.0.2...v3.0.3) (2024-11-04)
 
 
