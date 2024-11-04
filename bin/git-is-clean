@@ -3,8 +3,8 @@ const { spawnSync } = require('child_process')
 
 const chalk = require('chalk')
 const yargs = require('yargs')
-const camelCase = require('lodash.camelcase')
-const pick = require('lodash.pick')
+const camelCase = require('lodash/camelCase')
+const pick = require('lodash/pick')
 
 const { getFiles } = require('../lib')
 const statuses = require('../lib/statuses')
