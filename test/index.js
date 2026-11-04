@@ -44,12 +44,14 @@ mockery.enable({
 })
 
 const setup = statuses => {
-  mockery.registerMock('simple-git', () => ({
-    status: () =>
-      Promise.resolve({
-        files: statuses
-      })
-  }))
+  mockery.registerMock('simple-git', {
+    simpleGit: () => ({
+      status: () =>
+        Promise.resolve({
+          files: statuses
+        })
+    })
+  })
 
   return require(MODULE)
 }
